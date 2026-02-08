@@ -14,4 +14,9 @@ class Post extends Model
         'title',
         'body',
     ];
+
+    // a Post has only one user.
+    public function user() {
+        return $this->belongsTo(User::class);
+    }
 }

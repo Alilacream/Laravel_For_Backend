@@ -3,10 +3,9 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 
 class Register extends Controller
@@ -18,20 +17,23 @@ class Register extends Controller
     {
         $validate = $request->validate([
             'name' => 'required|string|max:20',
-            'email' => 'required|string|max:200|user:unique',
-            'password' => 'required|string|min:8|max:200',
+            'email' => 'required|email|unique:users,email', // Table name first, then column
+            'password' => 'required|confirmed',
         ]);
-        $user = User::create([
-            'name' => $validate['name'],
-            'email' => $validate['email'],
-            'password' => Hash::make($validate['password'])
-        ]);
+        $user = User::create($validate);
+
+        // read from the laravel sanctum docks to create your token.
 
         $token = $user->createToken($request->name);
+        // set the expiration date for the token:
+        $token->expires_at = Carbon::now()->addDays(7);
+        // saving the token
+        $token->token->save();
 
+        // we show the json format
         return [
             'user' => $user,
-            'token' => $token,
+            'token' => $token->plainTextToken,
         ];
     }
 }

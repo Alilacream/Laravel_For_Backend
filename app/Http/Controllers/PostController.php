@@ -10,7 +10,9 @@ use Illuminate\Support\Facades\Gate;
 class PostController extends Controller implements HasMiddleware
 {
     public static function middleware() {
-        new Middleware('auth:sanctum', except:  ["index", "show"]);
+        return [
+            new Middleware('auth:sanctum', except:  ["index", "show"])
+        ];
     }
     /**
      * Display a listing of the resource.
@@ -64,6 +66,7 @@ class PostController extends Controller implements HasMiddleware
      */
     public function update(Request $request, Post $post)
     {
+        //Gate authorize function uses the name of the function policy as a string, then the model CRUD.
         Gate::authorize('modify', $post);
         $validate = $request->validate([
             'title' => 'required|max:255',
@@ -80,6 +83,7 @@ class PostController extends Controller implements HasMiddleware
      */
     public function destroy(Post $post)
     {
+
         Gate::authorize('modify', $post);
         // message for displaying what title is removed;
         $message = $post->title . ": is deleted";
